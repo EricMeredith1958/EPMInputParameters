@@ -23,43 +23,50 @@ import org.ini4j.Wini;
 
 public class MyPics {
 
-	final static String CONST_ConfigFileName = "C:\\Users\\Eric\\PictureFrameWorkspace\\EPMInputParameters\\src\\picture.properties";
+	static private String GLOBAL_ConfigFileName = "src/picture.properties";
+	static public boolean GLOBAL_Debug = false;
 	
 	static private FrameConfiguration frameConfig = new FrameConfiguration();
 	Wini config = null;
 
 	public static void main(String[] args) {
 
-		for( int x=0; x<args.length; x++){
-			System.out.printf("arg %d: %s\n", x, args[x]);
-			}
-
 		MyPics myPictures = new MyPics();
-		JFrame myFrame = myPictures.createFrame();
-		
+		// TODO Picture Folders have bad file names
 		String picFolder = myPictures.getConfig("Pictures", "folder");
 		
+		GLOBAL_Debug = (myPictures.getConfig("Environment", "debug").toUpperCase().trim()) == "YES" ? true : false;
 		
-		frameConfig.listFilesForFolder(picFolder);
-		frameConfig.toConsole();
+		for( int x=0; x<args.length; x++){
+			if (GLOBAL_Debug) System.out.printf("arg %d: %s\n", x, args[x]);
+			}
 
+		JFrame myFrame = myPictures.createFrame();
 
-        JLabel myLabel = new JLabel();
-        myLabel.setHorizontalAlignment(JLabel.CENTER);
-        myLabel.setBackground(Color.black);
-        myLabel.setOpaque(true);
-        myFrame.add(myLabel);
-        myFrame.setBackground( Color.black );
-		
       	while (true) {
             try {
+        		frameConfig.listFilesForFolder(picFolder);
+        		if (GLOBAL_Debug) frameConfig.toConsole();
+
+                JLabel myLabel = new JLabel();
+                myLabel.setHorizontalAlignment(JLabel.CENTER);
+                myLabel.setBackground(Color.black);
+                myLabel.setOpaque(true);
+                myFrame.add(myLabel);
+                myFrame.setBackground( Color.black );
+                
+                int growloops = (int)new Integer(myPictures.getConfig("Presentation",  "growloops")).intValue();
+                
 			    for (File f : frameConfig.getPictureFiles() ) {
 			    	
 			    	BufferedImage img=ImageIO.read(new File(f.getPath()));
 		            try {
-		            	Image dimg = myPictures.setImageDimensions(myFrame.getWidth(), myFrame.getHeight(), img);
-				    	ImageIcon icon=new ImageIcon(dimg);
-				        myLabel.setIcon(icon);
+		            	for (int n = 0; n<=growloops; n++ ) {
+		            		
+			            	Image dimg = myPictures.setImageDimensions(myFrame.getWidth()+n, myFrame.getHeight()+n, img);
+					    	ImageIcon icon=new ImageIcon(dimg);
+					        myLabel.setIcon(icon);
+		            	}
 			            } catch (Exception e) {
 			            	e.printStackTrace();
 			    	}
@@ -68,6 +75,7 @@ public class MyPics {
 						long l = new Long(myPictures.getConfig("Presentation", "delay")).longValue();
 						Thread.sleep(l);
 					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 			    }
 		    
@@ -99,20 +107,6 @@ public class MyPics {
 	}
 	
 	
-	// Deprecated...
-    public void displayImage(JFrame myFrame, String picFile ) throws IOException
-    {
-        BufferedImage img=ImageIO.read(new File(picFile));
-        ImageIcon icon=new ImageIcon(img);
-
-        myFrame.setLayout(new FlowLayout());
-        JLabel lbl=new JLabel();
-        lbl.setIcon(icon);
-        
-        myFrame.add(lbl);
-        myFrame.setVisible(true);
-    }
-    
     public Image setImageDimensions( int windowWidth, int windowHeight, BufferedImage img ) throws Exception {
     	
     	Image dimg = null;
@@ -138,7 +132,7 @@ public class MyPics {
     		
     	}
     	
-    	System.out.printf("Window: %d, %d Image: %d, %d becomes: %d, %d\n", windowWidth, windowHeight, img.getWidth(), img.getHeight(), proposedImageW, proposedImageH );
+    	if (GLOBAL_Debug ) System.out.printf("Window: %d, %d Image: %d, %d becomes: %d, %d\n", windowWidth, windowHeight, img.getWidth(), img.getHeight(), proposedImageW, proposedImageH );
     	
     	dimg = img.getScaledInstance(proposedImageW, proposedImageH, Image.SCALE_SMOOTH);
     	
@@ -146,7 +140,7 @@ public class MyPics {
     }
 
     public String getConfigFile() {
-    	return CONST_ConfigFileName;
+    	return GLOBAL_ConfigFileName;
     }
     
     public String getConfig( String section, String configItem ) {

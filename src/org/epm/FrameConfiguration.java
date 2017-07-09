@@ -11,6 +11,7 @@ public class FrameConfiguration {
 	
 	public void listFilesForFolder(String configFilename) {
 		File folder = new File(configFilename);
+		pictureArray = new ArrayList<File>();
 		
 	    for (File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {

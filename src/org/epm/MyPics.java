@@ -68,6 +68,7 @@ public class MyPics {
 		
 	}
 	
+	// Create the window frame
 	public JFrame createFrame() {
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -86,6 +87,8 @@ public class MyPics {
 		return myFrame;
 	}
 	
+	
+	// Deprecated...
     public void displayImage(JFrame myFrame, String picFile ) throws IOException
     {
         BufferedImage img=ImageIO.read(new File(picFile));

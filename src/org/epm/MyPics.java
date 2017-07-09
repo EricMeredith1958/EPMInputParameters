@@ -5,21 +5,28 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
-import java.awt.Label;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.naming.ConfigurationException;
+import javax.security.auth.login.Configuration;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import org.ini4j.InvalidFileFormatException;
+import org.ini4j.Wini;
+
 
 public class MyPics {
 
+	final static String CONST_ConfigFileName = "C:\\Users\\Eric\\PictureFrameWorkspace\\EPMInputParameters\\src\\picture.properties";
+	
 	static private FrameConfiguration frameConfig = new FrameConfiguration();
+	Wini config = null;
 
 	public static void main(String[] args) {
 
@@ -30,7 +37,10 @@ public class MyPics {
 		MyPics myPictures = new MyPics();
 		JFrame myFrame = myPictures.createFrame();
 		
-		frameConfig.listFilesForFolder(args[0]);
+		String picFolder = myPictures.getConfig("Pictures", "folder");
+		
+		
+		frameConfig.listFilesForFolder(picFolder);
 		frameConfig.toConsole();
 
 
@@ -55,7 +65,8 @@ public class MyPics {
 			    	}
 			        
 					try {
-						Thread.sleep(1000);
+						long l = new Long(myPictures.getConfig("Presentation", "delay")).longValue();
+						Thread.sleep(l);
 					} catch (InterruptedException e) {
 					}
 			    }
@@ -134,4 +145,31 @@ public class MyPics {
     	return dimg;
     }
 
+    public String getConfigFile() {
+    	return CONST_ConfigFileName;
+    }
+    
+    public String getConfig( String section, String configItem ) {
+    	String rValue = "";
+    	
+    	try {
+    		
+    		if (config == null ) {
+    			config = new Wini( new File(getConfigFile()));
+    		}
+			
+    		rValue = config.get(section, configItem);
+    		
+			
+		} catch (InvalidFileFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	return rValue;
+    }
+    
 }
